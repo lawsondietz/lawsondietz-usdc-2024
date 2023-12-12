@@ -23,9 +23,53 @@
      * return the appropriate object here. */
 
     var result = {
-        "SearchTerm": "",
+        "SearchTerm": searchTerm,
         "Results": []
     };
+
+    let lastContent = {}
+    let edgeCaseContent = ""
+    let lastLine = false
+
+    // Loop through books
+    for(let i = 0; i < scannedTextObj.length; i++) {
+        
+        const book = scannedTextObj[i]        
+
+        for(let j = 0; j < book.Content.length; j++) {
+
+            const content = book.Content[j]
+
+            // First compound statement for first page edgecases, second for everything after as it could be on different pages as well
+            if((j != 0 && i == 0) || (i != 0)) {
+                console.log((lastContent.Text + content.Text).replace("-", ""))
+                edgeCaseContent = (lastContent.Text + content.Text).replace("-", "")
+            }
+
+            if(content.Text.includes(searchTerm)) {
+                result.Results.push({
+                    ISBN: book.ISBN,
+                    Page: content.Page,
+                    Line: content.Line
+                })
+                lastLine = true
+            }
+            // Statement for edge cases and not first line as it would not have an edge case
+            else if(!lastLine && edgeCaseContent.includes(searchTerm)) {
+                result.Results.push({
+                    ISBN: book.ISBN,
+                    Page: content.Page,
+                    Line: content.Line
+                })
+                lastLine = false
+            }
+
+            // Find hyphenated words
+            lastContent = content
+
+        }
+    }
+
     
     return result; 
 }
@@ -63,6 +107,17 @@ const twentyLeaguesOut = {
             "ISBN": "9780000528531",
             "Page": 31,
             "Line": 9
+        }
+    ]
+}
+
+const twentyLeaguesOut2 = {
+    "SearchTerm": "darkness",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 8
         }
     ]
 }
