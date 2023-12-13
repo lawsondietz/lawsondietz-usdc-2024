@@ -27,8 +27,10 @@
         "Results": []
     };
 
+    // Variable to store last content line and page numbers
     let lastContent = {}
-    let edgeCaseContent = ""
+
+    // Variable to get rid of duplicates in results array
     let lastLine = false
 
     // Loop through books
@@ -43,12 +45,16 @@
             for(let j = 0; j < book.Content.length; j++) {
 
                 const content = book.Content[j]
+                let edgeCaseContent = ""
+                
+                // If not first, search term is "-", or last line does not include hyphen
+                if(j != 0 && searchTerm != "-" && lastContent.Text.includes("-")) {
 
-                // If not first as it would not have an edgecase hyphen
-                if(j != 0) {
+                    // Take first word of last line 
                     var firstWord = content.Text.split(" ")
-
+                    // Replace hyphen and concatenate
                     edgeCaseContent = lastContent.Text.replace("-", "") + firstWord[0]
+
                 }
 
                 // Special case where line includes search term and last line is hyphenated
@@ -63,37 +69,29 @@
                         Page: content.Page,
                         Line: content.Line
                     })
+                    
+                    // Set true get rid of duplicates in results array
                     lastLine = true
                 }
                 // If line includes search, push results
                 else if(content.Text.includes(searchTerm)) {
-                    //console.log(content.Text)
-                    //console.log(edgeCaseContent)
+
                     result.Results.push({
                         ISBN: book.ISBN,
                         Page: content.Page,
                         Line: content.Line
                     })
                     
-                    // If found 
+                    // Set true get rid of duplicates in results array 
                     lastLine = true
                 }
-                // Statement for edge cases and not first line as it would not be checked in this iteration
-                else if(!lastLine && edgeCaseContent.includes(searchTerm)) {
-                    result.Results.push({
-                        ISBN: book.ISBN,
-                        Page: lastContent.Page,
-                        Line: lastContent.Line
-                    })
-                }
-                // Reset variable after 1 iteration
                 else {
 
                     lastLine = false
 
                 }
 
-                // Find hyphenated words
+                // set as current for next line to use last lines content
                 lastContent = content
 
             }
@@ -120,12 +118,12 @@ const twentyLeaguesIn = [
             {
                 "Page": 31,
                 "Line": 9,
-                "Text": "ness was then profound; darkness and however good the Canadian\'s"
+                "Text": "ness was then profound; darkness and however good the Canadian\'s dark-"
             },
             {
                 "Page": 31,
                 "Line": 10,
-                "Text": "eyes were, I asked myself how he had managed to see, and"
+                "Text": "ness eyes were, I asked myself how darkness he had managed to see, and"
             },
             {
                 "Page": 31,
@@ -181,10 +179,15 @@ const twentyLeaguesOutPos1 = {
             "Page": 31,
             "Line": 8
         },
-                {
+        {
             "ISBN": "9780000528531",
             "Page": 31,
             "Line": 9
+        },
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 10
         }
     ]
 }
@@ -239,6 +242,11 @@ const twentyLeaguesOutPos5 = {
             "ISBN": "9780000528531",
             "Page": 31,
             "Line": 8
+        },
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
         },
         {
             "ISBN": "9780000528532",
