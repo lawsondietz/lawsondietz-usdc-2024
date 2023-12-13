@@ -73,6 +73,14 @@
                     // Set true get rid of duplicates in results array
                     lastLine = true
                 }
+                // Case where last line is hyphenated
+                else if (!lastLine && edgeCaseContent.includes(searchTerm)){
+                    result.Results.push({
+                        ISBN: book.ISBN,
+                        Page: lastContent.Page,
+                        Line: lastContent.Line
+                    })
+                }
                 // If line includes search, push results
                 else if(content.Text.includes(searchTerm)) {
 
