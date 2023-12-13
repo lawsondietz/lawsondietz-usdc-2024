@@ -36,38 +36,52 @@
         
         const book = scannedTextObj[i]        
 
-        for(let j = 0; j < book.Content.length; j++) {
+        // If content exists
+        if(book.Content) {
 
-            const content = book.Content[j]
+            // Loop pages
+            for(let j = 0; j < book.Content.length; j++) {
 
-            // First compound statement for first page edgecases, second for everything after as it could be on different pages as well
-            if((j != 0 && i == 0) || (i != 0)) {
-                console.log((lastContent.Text + content.Text).replace("-", ""))
-                edgeCaseContent = (lastContent.Text + content.Text).replace("-", "")
+                const content = book.Content[j]
+
+                // If not first as it would not have an edgecase hyphen
+                if(j != 0) {
+                    edgeCaseContent = (lastContent.Text + content.Text).replace("-", "")
+                }
+
+                // If line includes search, push results
+                if(content.Text.includes(searchTerm)) {
+                    result.Results.push({
+                        ISBN: book.ISBN,
+                        Page: content.Page,
+                        Line: content.Line
+                    })
+                    
+                    // If found 
+                    lastLine = true
+                }
+                // Statement for edge cases and not first line as it would not be checked in this iteration
+                else if(!lastLine && edgeCaseContent.includes(searchTerm)) {
+                    result.Results.push({
+                        ISBN: book.ISBN,
+                        Page: lastContent.Page,
+                        Line: lastContent.Line
+                    })
+                }
+                // Reset variable after 1 iteration
+                else {
+
+                    lastLine = false
+
+                }
+
+                // Find hyphenated words
+                lastContent = content
+
             }
-
-            if(content.Text.includes(searchTerm)) {
-                result.Results.push({
-                    ISBN: book.ISBN,
-                    Page: content.Page,
-                    Line: content.Line
-                })
-                lastLine = true
-            }
-            // Statement for edge cases and not first line as it would not have an edge case
-            else if(!lastLine && edgeCaseContent.includes(searchTerm)) {
-                result.Results.push({
-                    ISBN: book.ISBN,
-                    Page: content.Page,
-                    Line: content.Line
-                })
-                lastLine = false
-            }
-
-            // Find hyphenated words
-            lastContent = content
 
         }
+        
     }
 
     
@@ -94,14 +108,87 @@ const twentyLeaguesIn = [
                 "Page": 31,
                 "Line": 10,
                 "Text": "eyes were, I asked myself how he had managed to see, and"
-            } 
+            },
+            {
+                "Page": 31,
+                "Line": 11,
+                "Text": "were, I asked myself how he had managed to see, and"
+            }
+        ] 
+    },
+    {
+        "Title": "Thirty Thousand Leagues Under the Sea",
+        "ISBN": "9780000528532",
+        "Content": [
+            {
+                "Page": 32,
+                "Line": 8,
+                "Text": "The sea is everything. It covers seven tenths of the terr-"
+            },
+            {
+                "Page": 32,
+                "Line": 9,
+                "Text": "estrial globe. Its breath is pure and healthy. It is an immense"
+            },
+            {
+                "Page": 32,
+                "Line": 10,
+                "Text": "desert, where man is never lonely, for he feels life stirring"
+            },
+            {
+                "Page": 32,
+                "Line": 11,
+                "Text": "on all sides. The sea is only the embodiment of a supernatural"
+            }
         ] 
     }
 ]
+
+const bookNoContent = [
+    {
+        "Title": "Nothing Exciting",
+        "ISBN": "9780000528533",
+        "Content": [] 
+    }
+]
+
+const emptyBook = [ {} ]
     
 /** Example output object */
-const twentyLeaguesOut = {
+const twentyLeaguesOutPos1 = {
+    "SearchTerm": "darkness",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 8
+        }
+    ]
+}
+
+const twentyLeaguesOutPos2 = {
     "SearchTerm": "the",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
+        },
+        {
+            "ISBN": "9780000528532",
+            "Page": 32,
+            "Line": 8
+        },
+        {
+            "ISBN": "9780000528532",
+            "Page": 32,
+            "Line": 11
+        }
+    ]
+}
+
+const twentyLeaguesOutPos3 = {
+    "SearchTerm": "profound",
     "Results": [
         {
             "ISBN": "9780000528531",
@@ -111,13 +198,81 @@ const twentyLeaguesOut = {
     ]
 }
 
-const twentyLeaguesOut2 = {
-    "SearchTerm": "darkness",
+const twentyLeaguesOutPos4 = {
+    "SearchTerm": ";",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
+        }
+    ]
+}
+
+const twentyLeaguesOutPos5 = {
+    "SearchTerm": "-",
     "Results": [
         {
             "ISBN": "9780000528531",
             "Page": 31,
             "Line": 8
+        },
+        {
+            "ISBN": "9780000528532",
+            "Page": 32,
+            "Line": 8
+        }
+    ]
+}
+
+const twentyLeaguesOutNeg1 = {
+    "SearchTerm": "?",
+    "Results": []
+}
+
+const twentyLeaguesOutNeg2 = {
+    "SearchTerm": "dolphin",
+    "Results": []
+}
+
+const emptyBookNeg3 = {
+    "SearchTerm": "dolphin",
+    "Results": []
+}
+
+const noContentNeg4 = {
+    "SearchTerm": "dolphin",
+    "Results": []
+}
+
+const twentyLeaguesOutCase1 = {
+    "SearchTerm": "The",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 8
+        },
+        {
+            "ISBN": "9780000528532",
+            "Page": 32,
+            "Line": 8
+        },
+        {
+            "ISBN": "9780000528532",
+            "Page": 32,
+            "Line": 11
+        }
+    ]
+}
+
+const twentyLeaguesOutCase2 = {
+    "SearchTerm": "Canadian's",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
         }
     ]
 }
@@ -139,21 +294,108 @@ const twentyLeaguesOut2 = {
  * */
 
 /** We can check that, given a known input, we get a known output. */
-const test1result = findSearchTermInBooks("the", twentyLeaguesIn);
-if (JSON.stringify(twentyLeaguesOut) === JSON.stringify(test1result)) {
+
+// Positive
+const test1result = findSearchTermInBooks("darkness", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutPos1) === JSON.stringify(test1result)) {
     console.log("PASS: Test 1");
 } else {
     console.log("FAIL: Test 1");
-    console.log("Expected:", twentyLeaguesOut);
+    console.log("Expected:", twentyLeaguesOutPos1);
     console.log("Received:", test1result);
 }
 
-/** We could choose to check that we get the right number of results. */
-const test2result = findSearchTermInBooks("the", twentyLeaguesIn); 
-if (test2result.Results.length == 1) {
+const test2result = findSearchTermInBooks("the", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutPos2) === JSON.stringify(test2result)) {
     console.log("PASS: Test 2");
 } else {
     console.log("FAIL: Test 2");
-    console.log("Expected:", twentyLeaguesOut.Results.length);
-    console.log("Received:", test2result.Results.length);
+    console.log("Expected:", twentyLeaguesOutPos2);
+    console.log("Received:", test2result);
 }
+
+const test3result = findSearchTermInBooks("profound", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutPos3) === JSON.stringify(test3result)) {
+    console.log("PASS: Test 3");
+} else {
+    console.log("FAIL: Test 3");
+    console.log("Expected:", twentyLeaguesOutPos3);
+    console.log("Received:", test2result);
+}
+
+const test4result = findSearchTermInBooks(";", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutPos4) === JSON.stringify(test4result)) {
+    console.log("PASS: Test 4");
+} else {
+    console.log("FAIL: Test 4");
+    console.log("Expected:", twentyLeaguesOutPos4);
+    console.log("Received:", test4result);
+}
+
+const test5result = findSearchTermInBooks("-", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutPos5) === JSON.stringify(test5result)) {
+    console.log("PASS: Test 5");
+} else {
+    console.log("FAIL: Test 5");
+    console.log("Expected:", twentyLeaguesOutPos5);
+    console.log("Received:", test5result);
+}
+
+// Negative
+
+const test6result = findSearchTermInBooks("?", twentyLeaguesIn); 
+if (test6result.Results.length == 0) {
+    console.log("PASS: Test 6");
+} else {
+    console.log("FAIL: Test 6");
+    console.log("Expected:", twentyLeaguesOutNeg1.Results.length);
+    console.log("Received:", test6result.Results.length);
+}
+
+const test7result = findSearchTermInBooks("dolphin", twentyLeaguesIn); 
+if (test6result.Results.length == 0) {
+    console.log("PASS: Test 7");
+} else {
+    console.log("FAIL: Test 7");
+    console.log("Expected:", twentyLeaguesOutNeg2.Results.length);
+    console.log("Received:", test7result.Results.length);
+}
+
+const test8result = findSearchTermInBooks("dolphin", emptyBook); 
+if (test8result.Results.length == 0) {
+    console.log("PASS: Test 8");
+} else {
+    console.log("FAIL: Test 8");
+    console.log("Expected:", emptyBookNeg3.Results.length);
+    console.log("Received:", test8result.Results.length);
+}
+
+const test9result = findSearchTermInBooks("dolphin", bookNoContent); 
+if (test9result.Results.length == 0) {
+    console.log("PASS: Test 9");
+} else {
+    console.log("FAIL: Test 9");
+    console.log("Expected:", noContentNeg4.Results.length);
+    console.log("Received:", test9result.Results.length);
+}
+
+// Case-sensitive
+
+const test10result = findSearchTermInBooks("The", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutCase1) === JSON.stringify(test10result)) {
+    console.log("PASS: Test 10");
+} else {
+    console.log("FAIL: Test 10");
+    console.log("Expected:", twentyLeaguesOutCase1);
+    console.log("Received:", test10result);
+}
+
+const test11result = findSearchTermInBooks("Canadian's", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutCase2) === JSON.stringify(test11result)) {
+    console.log("PASS: Test 11");
+} else {
+    console.log("FAIL: Test 11");
+    console.log("Expected:", twentyLeaguesOutCase2);
+    console.log("Received:", test11result);
+}
+
