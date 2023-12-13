@@ -39,18 +39,36 @@
         // If content exists
         if(book.Content) {
 
-            // Loop pages
+            // Loop pages and lines
             for(let j = 0; j < book.Content.length; j++) {
 
                 const content = book.Content[j]
 
                 // If not first as it would not have an edgecase hyphen
                 if(j != 0) {
-                    edgeCaseContent = (lastContent.Text + content.Text).replace("-", "")
+                    var firstWord = content.Text.split(" ")
+
+                    edgeCaseContent = lastContent.Text.replace("-", "") + firstWord[0]
                 }
 
+                // Special case where line includes search term and last line is hyphenated
+                if(!lastLine && content.Text.includes(searchTerm) && edgeCaseContent.includes(searchTerm)) {
+                    result.Results.push({
+                        ISBN: book.ISBN,
+                        Page: lastContent.Page,
+                        Line: lastContent.Line
+                    },
+                    {
+                        ISBN: book.ISBN,
+                        Page: content.Page,
+                        Line: content.Line
+                    })
+                    lastLine = true
+                }
                 // If line includes search, push results
-                if(content.Text.includes(searchTerm)) {
+                else if(content.Text.includes(searchTerm)) {
+                    //console.log(content.Text)
+                    //console.log(edgeCaseContent)
                     result.Results.push({
                         ISBN: book.ISBN,
                         Page: content.Page,
@@ -102,7 +120,7 @@ const twentyLeaguesIn = [
             {
                 "Page": 31,
                 "Line": 9,
-                "Text": "ness was then profound; and however good the Canadian\'s"
+                "Text": "ness was then profound; darkness and however good the Canadian\'s"
             },
             {
                 "Page": 31,
@@ -162,6 +180,11 @@ const twentyLeaguesOutPos1 = {
             "ISBN": "9780000528531",
             "Page": 31,
             "Line": 8
+        },
+                {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
         }
     ]
 }
